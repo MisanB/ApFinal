@@ -1,0 +1,777 @@
+public class card {
+    
+    private int Suit; //index
+    private int Rank;
+    
+    public card(int Suit, int Rank)
+    {
+        this.Suit = Suit;
+        this.Rank = Rank;
+    }
+    
+    public int getRank()
+    {
+        return Rank;
+    }
+    public int getSuit()
+    {
+        return Suit;
+    }
+    
+    public String toString()
+    {
+        if (Rank < 11)
+        {
+            return Rank + " of " + Deck.getSuit(Suit);
+        }
+        else if (Rank == 11)
+        {
+            return "jack of " + Deck.getSuit(Suit);
+        }
+        else if (Rank == 12)
+        {
+            return "Queen of " + Deck.getSuit(Suit);
+        }
+        else if (Rank == 13)
+        {
+            return "King of " + Deck.getSuit(Suit);
+        }
+        else // if (Rank == 14)
+        {
+            return "Ace of " + Deck.getSuit(Suit);
+        }
+    }
+    
+    public static String stringRank(int rank)
+    {
+        if (rank < 11)
+        {
+            return "" + rank;
+        }
+        else if (rank == 11)
+        {
+            return "jack";
+        }
+        else if (rank == 12)
+        {
+            return "Queen";
+        }
+        else if (rank == 13)
+        {
+            return "King";
+        }
+        else // if (rank == 14)
+        {
+            return "Ace";
+        }
+    }
+    
+    public boolean is_greater(card Other)
+    {
+        if (Rank != Other.getRank())
+        {
+            return Rank > Other.getRank();
+        }
+        else
+        {
+            return Suit < Other.getSuit();
+        }
+    }
+}
+
+---
+
+import java.util.ArrayList;
+
+public class Deck {
+    
+    static final int spadesIndex = 0;
+    static final int diamondsIndex = 1;
+    static final int heartsIndex = 2;
+    static final int clubsIndex = 3;
+    
+    ArrayList<card> DeckOfCards = new ArrayList<>();
+    
+    public Deck()
+    {
+        initDeck();
+    }
+    public Deck(boolean off)
+    {
+        return;
+    }
+    
+    public void initDeck()
+    {
+        DeckOfCards.addAll(initSuit(spadesIndex));
+        DeckOfCards.addAll(initSuit(diamondsIndex));
+        DeckOfCards.addAll(initSuit(heartsIndex));
+        DeckOfCards.addAll(initSuit(clubsIndex));
+    }
+    
+    public card pickCard()
+    {
+        return DeckOfCards.get( (int)(Math.random() * DeckOfCards.size()));
+    }
+    public int pickIndex()
+    {
+        return (int)(Math.random() * DeckOfCards.size());
+    }
+    
+    private ArrayList<card> initSuit(int Suit)
+    {
+        ArrayList<card> Cards = new ArrayList<>();
+        
+        for (int index =  2 ; index < 15 ; index++)
+        {
+            card newCard = new card(Suit, index);
+            Cards.add(newCard);
+        }
+        
+        return Cards;
+    }
+    
+    public card get(int index)
+    {
+        return DeckOfCards.get(index);
+    }
+    public void add(card obj)
+    {
+        DeckOfCards.add(obj);
+    }
+    public void add(int index, card obj)
+    {
+        DeckOfCards.add(index, obj);
+    }
+    public void remove(int index)
+    {
+        DeckOfCards.remove(index);
+    }
+    public int size()
+    {
+        return DeckOfCards.size();
+    }
+    public void clear()
+    {
+        DeckOfCards.clear();
+    }
+    
+    static String getSuit(int index)
+    {
+        if (spadesIndex == index)
+        {
+            return "Spades";
+        }
+        if (diamondsIndex == index)
+        {
+            return "Diamonds";
+        }
+        if (heartsIndex == index)
+        {
+            return "Hearts";
+        }
+        else
+        {
+            return "Clubs";
+        }
+    }
+}
+
+---
+
+public class hand extends Deck { 
+    
+    
+    public hand()
+    {
+        DeckOfCards.clear();
+    }
+    
+    public void dealCards(Deck cards, int amount )
+    {
+        for (int i = 0 ; i < amount ; i++)
+        {
+            int index = cards.pickIndex();
+            add(cards.get(index));
+            cards.remove(index);
+        }
+    }
+    
+    public void takeCard(Deck cards, int index)
+    {
+        add(cards.get(index));
+        cards.remove(index);
+    }
+    
+    public card takeOutCard(int index)
+    {
+        if (index >= size())
+        {
+            return null;
+        }
+        
+        card newcard = get(index);
+        remove(index);
+        
+        return newcard;
+    }
+    
+    public void depositCards(Deck deckDepositing)
+    {
+        for (int i = 0 ; i < deckDepositing.size() ; i++)
+        {
+            takeCard(deckDepositing, i);
+        }
+    }
+    
+    public String toString()
+    {
+        String value = "[";
+        
+        for (card cards : DeckOfCards)
+        {
+            value += cards + " : ";
+            value += "\n";
+        }
+        
+        return value + "]";
+    }
+    
+}
+
+---
+
+//completed by group members: misan bemigho, micah williams, and promise
+
+import java.util.*;
+import java.util.Scanner; 
+
+public class MyProgram
+{
+    static Scanner keyboard = new Scanner(System.in);
+    
+    static Deck CardDeck = new Deck();
+    
+    static hand PlayerDeck = new hand();
+    static hand AiDeck = new hand();
+    
+    static int PlayerMoney = 1000;
+    
+    static int amountPerDeck = 26;
+    
+    public static void main(String[] args)
+    {
+        
+        System.out.println(" Welcome to the miscino ! your starting balence is $" + PlayerMoney);
+        
+        String input;
+        
+        printMenu();
+        
+        do
+        {
+            input = keyboard.nextLine();
+            
+            if (input.equals("menu"))
+            {
+                printMenu();
+            }
+            else if (input.equals("war"))
+            {
+                playWar();
+            }
+            else if (input.equals("fish"))
+            {
+                playGoFish();
+            }
+            else if (input.equals("beg"))
+            {
+                PlayBegger();
+            }
+            
+        }
+        while (!input.equals("quit"));
+    }
+    
+    public static void printMenu()
+    {
+        System.out.println("type war to play war, fish for go fish, beg to play beggar my neighbour card game, and menu to show the menu");
+    }
+    
+    public static void playGoFish()
+    {
+        System.out.println(" Welcome to the go fish table ! ");
+        
+        FishGameSet();
+        
+        System.out.println(" Type \"bet\" to bet anyTime ! ");
+        
+        while (CardDeck.size() > 0)
+        {
+            playerGoFishTurn();
+            
+            aiGoFishTurn();
+        }
+    }
+    
+    public static void aiGoFishTurn()
+    {
+        int rank = (int)(Math.random() * 14) + 1;
+        
+        System.out.println("AI choises " + card.stringRank(rank) + "s ! ");
+        
+        boolean found = false;
+        
+        for (card cards : AiDeck.DeckOfCards)
+        {
+            if (cards.getRank() == rank) found = true;
+        }
+        
+        if (found)
+        {
+            for (int i = PlayerDeck.size() - 1 ; i > 0 ; i--)
+            {
+                card cards = PlayerDeck.get(i);
+                
+                if (cards.getRank() == rank)
+                {
+                    System.out.println("AI took your " + cards);
+                    AiDeck.takeCard(PlayerDeck, i);
+                }
+            }
+        }
+        else
+        {
+            AiDeck.dealCards(CardDeck, 1);
+        }
+        
+    }
+    
+    public static void playerGoFishTurn()
+    {
+        System.out.println(" Player's turn ");
+        
+        System.out.println(PlayerDeck);
+        
+        System.out.println(" chose a rank ");
+        
+        String input = keyboard.nextLine();
+        
+        boolean found = false;
+        for (card cards : AiDeck.DeckOfCards)
+        {
+            String cardString = "" + cards;
+            if (input.contains(cardString)) found = true;
+        }
+        
+        if (found)
+        {
+            for (int i = AiDeck.size() - 1 ; i > 0 ; i--)
+            {
+                card cards = AiDeck.get(i);
+                
+                String cardString = "" + cards;
+                if (input.contains(cardString)) 
+                {
+                    PlayerDeck.takeCard(AiDeck, i);
+                }
+            }
+        }
+        else
+        {
+            PlayerDeck.dealCards(CardDeck, 1);
+        }
+    }
+    
+    static public void FishGameSet()
+    {
+        CardDeck.initDeck();
+        
+        Collections.shuffle(CardDeck.DeckOfCards);
+        
+        amountPerDeck = 7;
+        
+        System.out.print(" How many cards would you like to play with in the pile? ");
+        
+        amountPerDeck = Math.min(numInput(), 52 - 14);
+        
+        AiDeck.clear();
+        PlayerDeck.clear();
+        
+        AiDeck.dealCards(CardDeck, amountPerDeck);
+        PlayerDeck.dealCards(CardDeck, amountPerDeck);
+    }
+    
+    public static void playWar()
+    {
+        System.out.println(" Welcome to the war table ! ");
+        
+        WarGameSet();
+        
+        System.out.println(" Type \"bet\" to bet anyTime ! ");
+        
+        while( (PlayerDeck.size() > 0 && AiDeck.size() > 0) )
+        {
+            sim(true);
+            
+            System.out.println("");
+            
+            System.out.println(" Your chances of winning " + chances(PlayerDeck.size()) + " %");
+            
+            int CurrentMoneyline = Moneyline();
+            
+            System.out.println(" Current Moneyline " + CurrentMoneyline + " ");
+            
+            if (keyboard.nextLine().contains("bet") && PlayerMoney > 0)
+            {
+                System.out.print(" what are your stakes (balance: " + PlayerMoney + ")? ");
+                
+                int stakes = Math.min(PlayerMoney, numInput());
+                
+                System.out.println(" whole game or set ? w/s ");
+                
+                boolean win;
+                
+                if (keyboard.next().contains("w"))
+                {
+                    while((PlayerDeck.size() > 0 && AiDeck.size() > 0))
+                    {
+                        sim(false);
+                    }
+                    win = PlayerDeck.size() > 0;
+                }
+                else
+                {
+                    win = sim(true);
+                }
+                
+                if (win)
+                {
+                    int winnings = PayOut(stakes, CurrentMoneyline);
+                    PlayerMoney += winnings;
+                    
+                    System.out.println("\n Wow you won $" + winnings);
+                }
+                else
+                {
+                    PlayerMoney -= stakes;
+                    System.out.println("\n Sorry pal, keep spending Im sure luck will find you");
+                }
+            }
+            
+            keyboard.nextLine();
+            
+            if (PlayerDeck.size() == 0 || AiDeck.size() == 0)
+            {
+                System.out.println("");
+                System.out.print("would you like to play again ? y/n ");
+                
+                if ("y".equals(keyboard.nextLine())) 
+                {
+                    WarGameSet();
+                }
+            }
+            
+            System.out.println("");
+            
+            
+        }
+        
+    }
+    
+    static public void WarGameSet()
+    {
+        Collections.shuffle(CardDeck.DeckOfCards);
+        
+        System.out.print(" How many cards would you like to play with in each deck? ");
+        
+        amountPerDeck = Math.min(numInput(), 26);
+        
+        System.out.println("");
+        
+        AiDeck.clear();
+        PlayerDeck.clear();
+        
+        for (int index = 0 ; index < amountPerDeck * 2 ; index++)
+        {
+            if (index < amountPerDeck)
+            {
+                PlayerDeck.add(CardDeck.get(index));
+            }
+            else
+            {
+                AiDeck.add(CardDeck.get(index));
+            }
+        }
+    }
+    
+    static public void PlayBegger()
+    {
+        BeggerGameSet();
+        
+        int stakes = 0;
+        int CurrentMoneyline = 50;
+        
+        // code here in a while loop
+        while (PlayerDeck.size() > 0 && AiDeck.size() > 0)
+        {
+            Object[] noAiPenalty = {};
+            Object[] noPlayerPenalty = {};
+            
+            do
+            {
+                noAiPenalty = BeggerDraw("AI", AiDeck);
+                
+                if (noAiPenalty[0].equals(false))
+                {
+                    break;
+                }
+                System.out.println("");
+                
+                keyboard.nextLine();
+                
+
+                
+                noPlayerPenalty = BeggerDraw("Player", PlayerDeck);
+            }
+            while (noAiPenalty[0].equals(true) && noPlayerPenalty[0].equals(true));
+            
+            boolean finalPenalty = false; // true is player, false is AI
+            
+            
+            
+            if (noAiPenalty[0].equals(false))
+            {
+                if (noAiPenalty[1] instanceof card offendingCard)
+                {
+                    finalPenalty = BeggerPenalty("Player", PlayerDeck, "AI", AiDeck, offendingCard);
+                }
+            }
+            else
+            {
+                if (noPlayerPenalty[1] instanceof card offendingCard)
+                {
+                    finalPenalty = BeggerPenalty("AI", AiDeck, "Player", PlayerDeck, offendingCard);
+                }
+            }
+            //System.out.println(finalPenalty);
+            if (finalPenalty)
+            {
+                System.out.println(" Player gets " + CardDeck.size() + " cards! ");
+                PlayerDeck.depositCards(CardDeck);
+            }
+            else
+            {
+                System.out.println(" Ai gets " + CardDeck.size() + " cards! ");
+                AiDeck.depositCards(CardDeck);
+            }
+            
+            keyboard.nextLine();
+            
+            System.out.println("");
+            
+            System.out.println(" Your chances of winning " + chances(PlayerDeck.size()) + " %");
+            
+            int Moneyline = Moneyline();
+            
+            System.out.println(" The new Moneyline is " + Moneyline + " ");
+            
+            if (stakes != 0)
+            {
+                System.out.println(" You placed you bet of $" + stakes + " at MoneyLine " + CurrentMoneyline);
+            }
+            
+            System.out.println(" Type bet to bet ");
+            
+            if (keyboard.nextLine().contains("bet"))
+            {
+                System.out.print(" what are your stakes (balance: " + PlayerMoney + ")? ");
+                
+                CurrentMoneyline = Moneyline;
+                
+                stakes += Math.min(PlayerMoney, numInput()); 
+            }
+        }
+        
+        if ( PlayerDeck.size() > 0 && stakes != 0)
+        {
+            int winnings = PayOut(stakes, CurrentMoneyline);
+            PlayerMoney += winnings;
+            
+            System.out.println("\n Wow you won $" + winnings);
+        }
+        else
+        {
+            PlayerMoney -= stakes;
+            System.out.println("\n Sorry pal, keep spending Im sure luck will find you");
+        }
+        
+        if (PlayerDeck.size() > 0)
+        {
+            System.out.println(" Player wins !");
+        }
+        else
+        {
+            System.out.println(" AI wins !");
+        }
+    }
+    
+    static public boolean BeggerPenalty(String name, hand HandUsed, String otherName, hand otherHand, card initCard)
+    {
+        int pAmount;
+        
+        if (initCard.getRank() == 1)
+        {
+            pAmount = 4;
+        }
+        else
+        {
+            pAmount = initCard.getRank() - 10;
+        }
+        
+        for (int i = 0 ; i < pAmount ; i++)
+        {
+            card AiCard = HandUsed.takeOutCard(0);
+            
+            if (AiCard == null)
+            {
+                return name.equals("Player");
+            }
+            
+            CardDeck.add(AiCard);
+            
+            System.out.println(name + " deposited " + AiCard );
+            
+            if (AiCard.getRank() == 1 || AiCard.getRank() >= 11) 
+            {
+                return BeggerPenalty(otherName, otherHand, name, HandUsed, AiCard);
+            }
+        }
+        
+        return otherName.equals("Player");
+    }
+    
+    static public Object[] BeggerDraw(String name, hand HandUsed)
+    {
+        card AiCard = HandUsed.takeOutCard(0);
+        
+        CardDeck.add(AiCard);
+        
+        if (AiCard == null)
+        {
+            Object[] returner = {true};
+            return returner;
+        }
+        
+        if (AiCard.getRank() == 1 || AiCard.getRank() > 11) 
+        {
+            System.out.println(name + " drew a penalty from a " + AiCard);
+            
+            Object[] returner = {false, AiCard};
+            return returner;
+        }
+        else
+        {
+            System.out.println(name + " drew " + AiCard);
+            
+            Object[] returner = {true};
+            return returner;
+        }
+    }
+    
+    static public void BeggerGameSet()
+    {
+        CardDeck.initDeck();
+        
+        Collections.shuffle(CardDeck.DeckOfCards);
+        
+        amountPerDeck = 26;
+        
+        AiDeck.dealCards(CardDeck, amountPerDeck);
+        PlayerDeck.dealCards(CardDeck, amountPerDeck);
+        
+        CardDeck.clear();
+    }
+    
+    static public int Moneyline()
+    {
+        double chance = (chances(PlayerDeck.size()) / 100.0);
+        
+        if (chance > .5)
+        {
+            return (int)((chance / (1 - chance)) * -100);
+        }
+        else
+        {
+            return (int)(((1 - chance) / chance) * 100);
+        }
+    }
+    static public int PayOut(int stakes, int odds)
+    {
+        if (odds < 0)
+        {
+            return (int)((100.0 / odds) * -stakes);
+        }
+        else
+        {
+            return (int)((odds / 100.0) * stakes);
+        }
+    }
+    static public double chances(int size)
+    {
+        return (size / (amountPerDeck * 2.0)) * 100;
+    }
+    
+    static public boolean sim(boolean printing)
+    {
+        int AiIndex = AiDeck.pickIndex();
+        int PlayerIndex = PlayerDeck.pickIndex();
+        
+        card PlayerCard = PlayerDeck.get(PlayerIndex);
+        card AiCard = AiDeck.get(AiIndex);
+        
+        if (printing) System.out.print(PlayerCard + " vs. " + AiCard);
+        
+        if (PlayerDeck.get(PlayerIndex).is_greater(AiDeck.get(AiIndex)))
+        {
+            PlayerDeck.add(AiDeck.get(AiIndex));
+            AiDeck.remove(AiIndex);
+            
+            if (printing) System.out.println(" Player Wins! ");
+            
+            return true;
+        }
+        else
+        {
+            AiDeck.add(PlayerDeck.get(PlayerIndex));
+            PlayerDeck.remove(PlayerIndex);
+            
+           if (printing)  System.out.println(" Ai Wins! ");
+           
+           return false;
+        }
+    }
+    
+    public static int numInput()
+    {
+        String output;
+        Integer value = null;
+        do
+        {
+            output = keyboard.next();
+            
+            try
+            {
+                value = Integer.parseInt(output);
+            }
+            catch (NumberFormatException error)
+            {
+                System.out.println("Please input only whole numbers");
+            }
+        }
+        while (value == null);
+        
+        return value;
+    }
+    
+}
